@@ -94,7 +94,8 @@ repl.start({
               		if (typeof(rate) != 'undefined') {
               			//Log order into order dictionary
                 		orders[ orderID ] = {
-		                    type: 'sell'
+                        orderID : orderID
+		                  ,  type: 'sell'
 		                  , number_buying: number_buying
 		                  , currency: currency
 		                };
