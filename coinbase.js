@@ -133,9 +133,9 @@ repl.start({
                     console.log(result);
                     //Use generator to make csv file and pass in all data
                     var generator = generate({columns: ['int', 'bool'], length: 2});
-                    generator.pipe(csv.transform(function(record){
+                    generator.pipe(csv.transform(function(){
                         return Object.keys(orders[orderID]).map(function(key,value){
-                          return orders[orderID][key] //This is where the keys are stored in each row
+                          return orders[orderID][key] //This is where the values are stored in each row
                         })
                     }))
                     .pipe(stringifier)
