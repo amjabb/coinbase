@@ -11,14 +11,6 @@ var market = {
   rates: {}
 };
 
-//Request data from website which is json format the body parameter of the callback function is of type string
-//so we must convert this to json in order to have easy access in the future
-req('https://coinbase.com/api/v1/currencies/exchange_rates',function (error, response, body) {
-  if (!error) {
-    market.rates = JSON.parse(body);
-  }
-});
-
 //Run start so that this implementation starts over every time
 repl.start({
     prompt: 'coinbase> '
@@ -37,6 +29,15 @@ repl.start({
         switch (inputs[0]) {
 
           case 'buy':
+
+            //Request data from website which is json format the body parameter of the callback function is of type string
+            //so we must convert this to json in order to have easy access in the future
+            //We do this in the case statement so the forex is updated in real time.
+            req('https://coinbase.com/api/v1/currencies/exchange_rates',function (error, response, body) {
+                if (!error) {
+                    market.rates = JSON.parse(body);
+                }
+            });
             //If the entered currency is not undefined make the currency capitalized
       		if (typeof(inputs[2]) != 'undefined') {
         		currency = inputs[2].toUpperCase();
@@ -50,7 +51,7 @@ repl.start({
             if (currency != 'BTC') {
               //Look up the rate from the JSON object created above
               var rate = market.rates[ 'btc_to_' + currency.toLowerCase() ];
-              //Check that the rate is there 
+///////////////Check that the rate is defined in the json file  
               if (typeof(rate) != 'undefined') {
               	//Log order into order dictionary
                 orders[ orderID ] = {
@@ -77,6 +78,14 @@ repl.start({
           break;
 
           case 'sell':
+
+            //Request data from website which is json format the body parameter of the callback function is of type string
+            //so we must convert this to json in order to have easy access in the future
+            req('https://coinbase.com/api/v1/currencies/exchange_rates',function (error, response, body) {
+                if (!error) {
+                    market.rates = JSON.parse(body);
+                }
+            });
 	            //If the entered currency is not undefined make the currency capitalized
 	      		if (typeof(inputs[2]) != 'undefined') {
 	        		currency = inputs[2].toUpperCase();
@@ -90,7 +99,7 @@ repl.start({
             	if (currency != 'BTC') {
               		//Look up the rate from the JSON object created above
               		var rate = market.rates[ 'btc_to_' + currency.toLowerCase() ];
-              		//Check that the rate is there 
+///////////////Check that the rate is defined in the json file  
               		if (typeof(rate) != 'undefined') {
               			//Log order into order dictionary
                 		orders[ orderID ] = {
