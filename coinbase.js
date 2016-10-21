@@ -4,6 +4,8 @@ var _ = require('underscore');
 var csv = require('csv');
 var generate = require('csv-generate');
 var fs = require('fs');
+var csv = require("fast-csv");
+
 
 var CSVFILE_DEFAULT = "coinbase.csv";
 var orders = {};
@@ -58,6 +60,7 @@ repl.start({
                     orderID : orderID
                   ,  type: 'buy'
                   , number_buying: number_buying
+                  , rate: rate
                   , currency: currency
                 };
                 //Calculate number of bitcoins you are buying
@@ -71,6 +74,7 @@ repl.start({
                   orderID : orderID
                 ,  type: 'buy'
                 , number_buying: number_buying
+                , rate: rate
                 , currency: currency
               };
               callback('Order to BUY ' + number_buying.toString() + ' BTC queued.');
@@ -106,6 +110,7 @@ repl.start({
                         orderID : orderID
 		                  ,  type: 'sell'
 		                  , number_buying: number_buying
+                      , rate: rate
 		                  , currency: currency
 		                };
                 	var amount_in_btc = number_buying / rate;
@@ -118,6 +123,7 @@ repl.start({
                       orderID : orderID
 		                ,  type: 'sell'
 		                , number_buying: number_buying
+                    , rate: rate
 		                , currency: currency
 		              };
               			callback('Order to SELL ' + number_buying.toString() + ' BTC queued.');
@@ -126,21 +132,37 @@ repl.start({
           //Display all outstanding orders
           case 'orders':
 			         console.log('=== CURRENT ORDERS ===');
-               var headers = ["orderID","type","number_buying","currency"];
-               var stringifier = csv.stringify({ header: true, columns: headers}); //The header row is displayed once at the beginning
+               //var headers = ["orderID","type","number_buying","currency"];
+               //var stringifier = csv.stringify({ header: true, columns: headers}); //The header row is displayed once at the beginning
                _.each(orders,function(order,orderID){ 
                     var result = orderID + ' : ' + order.type.toUpperCase() + ' ' + order.number_buying + ' : UNFILLED';
                     console.log(result);
-                    //Use generator to make csv file and pass in all data
-                    var generator = generate({columns: ['int', 'bool'], length: 2});
-                    generator.pipe(csv.transform(function(){
-                        return Object.keys(orders[orderID]).map(function(key,value){
-                          return orders[orderID][key] //This is where the values are stored in each row
-                        })
-                    }))
-                    .pipe(stringifier)
-                    .pipe(fs.createWriteStream('out.csv',{flags: 'w' }));                
+                    // OLD CSV GENERATION METHOD MIGHT NOT WORK IN EVERY USE CASE BECAUSE CSV STREAM IS BEING GENERATED EACH TIME
+                    // //Use generator to make csv file and pass in all data
+                    // var generator = generate({columns: ['int', 'bool'], length: 2});
+                    // generator.pipe(csv.transform(function(){
+                    //     return Object.keys(orders[orderID]).map(function(key,value){
+                    //       return orders[orderID][key] //This is where the values are stored in each row
+                    //     })
+                    // }))
+                    // .pipe(stringifier)
+                    // .pipe(fs.createWriteStream('out.csv',{flags: 'w' }));                
                 });
+               //NEW CSV GENERATION METHOD
+               //Transform the orders object to include headers for csv generation                                                                                                                  
+                var transformedOrders  = Object.keys(orders).map(function(key){
+                  return {
+                    "timestamp": key,
+                    "buy/sell type":orders[key].type,
+                    "amount":orders[key].number_buying,
+                    "currency":orders[key].currency,
+                    "conversion rate to BTC":orders[key].rate
+                  };
+                });
+                //create a writable stream                                                                                                                                                           
+                var  writableStream = fs.createWriteStream("my.csv");
+                //use fast-csv write function to write the orders and  pipe it to writable stream that can be used to create a csv of unknown size                                                   
+                csv.write(transformedOrders, {headers :true}).pipe(writableStream);
                callback();
 		      break;
 

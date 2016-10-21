@@ -1,0 +1,6 @@
+timestamp,buy/sell type,amount,currency,conversion rate to BTC
+Fri Oct 21 2016 11:46:53 GMT-0700 (PDT),buy,10,BTC,
+Fri Oct 21 2016 11:46:55 GMT-0700 (PDT),sell,30,BTC,
+Fri Oct 21 2016 11:46:59 GMT-0700 (PDT),buy,10,EUR,581.25
+Fri Oct 21 2016 11:47:03 GMT-0700 (PDT),sell,10,USD,629.93
+Fri Oct 21 2016 11:47:10 GMT-0700 (PDT),buy,29,BTC,
